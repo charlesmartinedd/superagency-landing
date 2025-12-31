@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Superagency | Reid Hoffman & Greg Beato</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-card: #1a1a24;
+            --bg-hover: #22222e;
+            --accent-cyan: #00d4ff;
+            --accent-blue: #0ea5e9;
+            --accent-glow: rgba(0, 212, 255, 0.15);
+            --text-primary: #f0f0f5;
+            --text-secondary: #a0a0b0;
+            --text-muted: #707080;
+            --border-subtle: rgba(255, 255, 255, 0.08);
+            --border-accent: rgba(0, 212, 255, 0.3);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Instrument Sans', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        /* Main Container - No Scroll */
+        .container {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+            padding: 1.5rem 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .title-section h1 {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+
+        .title-section .subtitle {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        .title-section .authors {
+            font-size: 0.875rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.75rem 1.5rem;
+            border: 1px solid var(--border-accent);
+            background: transparent;
+            color: var(--accent-cyan);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .btn:hover {
+            background: var(--accent-glow);
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+            color: var(--bg-primary);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 0 30px rgba(0, 212, 255, 0.4);
+        }
+
+        /* Main Content Grid */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 2rem;
+            padding-top: 1.5rem;
+            overflow: hidden;
+        }
+
+        /* Overview Panel */
+        .overview-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            overflow-y: auto;
+            padding-right: 1rem;
+        }
+
+        .overview-panel::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .overview-panel::-webkit-scrollbar-thumb {
+            background: var(--border-accent);
+            border-radius: 2px;
+        }
+
+        .section-label {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+        }
+
+        .overview-text p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+        }
+
+        .overview-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Chapters Grid */
+        .chapters-panel {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .chapters-grid::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .chapters-grid::-webkit-scrollbar-thumb {
+            background: var(--border-accent);
+            border-radius: 2px;
+        }
+
+        .chapter-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chapter-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 100%;
+            background: linear-gradient(180deg, var(--accent-cyan), var(--accent-blue));
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .chapter-card:hover {
+            background: var(--bg-hover);
+            border-color: var(--border-accent);
+            transform: translateX(2px);
+        }
+
+        .chapter-card:hover::before {
+            opacity: 1;
+        }
+
+        .chapter-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            line-height: 1.3;
+        }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 2rem;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-accent);
+            max-width: 700px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 0 60px var(--accent-glow);
+        }
+
+        .modal-header {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid var(--border-subtle);
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: sticky;
+            top: 0;
+            background: var(--bg-secondary);
+            z-index: 1;
+        }
+
+        .modal-title {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--accent-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .modal-chapter-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .modal-close {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: color 0.2s ease;
+        }
+
+        .modal-close:hover {
+            color: var(--accent-cyan);
+        }
+
+        .modal-body {
+            padding: 1.5rem 2rem 2rem;
+        }
+
+        .bullet-list {
+            list-style: none;
+        }
+
+        .bullet-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .bullet-list li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0.5rem;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-cyan);
+            border-radius: 1px;
+        }
+
+        .bullet-list li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* PDF Modal */
+        .pdf-modal {
+            max-width: 1000px;
+            height: 85vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pdf-modal .modal-body {
+            flex: 1;
+            padding: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #pdf-container {
+            flex: 1;
+            overflow-y: auto;
+            background: #1a1a1a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            gap: 1rem;
+        }
+
+        #pdf-container canvas {
+            max-width: 100%;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .pdf-controls {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .pdf-controls button {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pdf-controls button:hover {
+            border-color: var(--border-accent);
+            color: var(--accent-cyan);
+        }
+
+        .pdf-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pdf-controls span {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto 1fr;
+            }
+
+            .chapters-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+
+            .btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .chapters-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Glow effects */
+        .glow-line {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            margin: 1rem 0;
+            opacity: 0.3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="title-section">
+                <h1>SUPERAGENCY</h1>
+                <p class="subtitle">What Could Go Right with AI - and What We Can Do About It</p>
+                <p class="authors">Reid Hoffman & Greg Beato | 229 pages</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openPdfModal()">Read PDF</button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <section class="overview-panel">
+                <div class="overview-text">
+                    <div class="section-label">Overview</div>
+                    <p>
+                        <strong>Superagency</strong> challenges the prevailing doom-and-gloom narrative around artificial intelligence. Reid Hoffman, LinkedIn co-founder and prominent tech investor, alongside writer Greg Beato, argues that throughout history, transformative technologies - from the printing press to the automobile to the smartphone - have faced similar waves of fear and resistance, yet ultimately expanded human capability and agency rather than diminishing it.
+                    </p>
+                    <p>
+                        The book introduces the concept of "superagency" - the exponential amplification of human capability through AI, analogous to how the Industrial Revolution amplified physical labor through steam power. Hoffman advocates for "iterative deployment," a development approach that gives the public hands-on access to AI technologies in incremental stages, enabling real-world feedback, trust-building, and course-correction rather than waiting for theoretical perfection behind closed doors.
+                    </p>
+                    <p>
+                        Rather than viewing AI through the lens of "what could go wrong," Hoffman urges readers to consider "what could go right" - from personalized education and healthcare to solving climate change and reducing existential threats. The book positions innovation itself as a form of safety, arguing that rapid, adaptive development guided by democratic values and broad participation is far preferable to precautionary paralysis or ceding AI leadership to nations with different values.
+                    </p>
+                </div>
+
+                <div class="glow-line"></div>
+
+                <div>
+                    <div class="section-label">Core Thesis</div>
+                    <p style="color: var(--text-secondary); font-size: 0.9rem;">
+                        AI should be developed through <em>iterative deployment</em> with broad public access, treating innovation and safety as synergistic rather than opposing forces. The goal is <em>superagency</em>: empowering billions of people with AI-amplified capabilities while steering toward better futures that make worse outcomes harder to achieve.
+                    </p>
+                </div>
+            </section>
+
+            <section class="chapters-panel">
+                <div class="section-label">Chapters</div>
+                <div class="chapters-grid">
+                    <div class="chapter-card" onclick="openChapterModal(1)">
+                        <div class="chapter-number">Chapter 01</div>
+                        <div class="chapter-title">Humanity Has Entered the Chat</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(2)">
+                        <div class="chapter-number">Chapter 02</div>
+                        <div class="chapter-title">Big Knowledge</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(3)">
+                        <div class="chapter-number">Chapter 03</div>
+                        <div class="chapter-title">What Could Possibly Go Right?</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(4)">
+                        <div class="chapter-number">Chapter 04</div>
+                        <div class="chapter-title">The Triumph of the Private Commons</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(5)">
+                        <div class="chapter-number">Chapter 05</div>
+                        <div class="chapter-title">Testing, Testing 1, 2, &infin;</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(6)">
+                        <div class="chapter-number">Chapter 06</div>
+                        <div class="chapter-title">Innovation Is Safety</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(7)">
+                        <div class="chapter-number">Chapter 07</div>
+                        <div class="chapter-title">Informational GPS</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(8)">
+                        <div class="chapter-number">Chapter 08</div>
+                        <div class="chapter-title">Law Is Code</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(9)">
+                        <div class="chapter-number">Chapter 09</div>
+                        <div class="chapter-title">Networked Autonomy</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(10)">
+                        <div class="chapter-number">Chapter 10</div>
+                        <div class="chapter-title">The United States of A(I)merica</div>
+                    </div>
+                    <div class="chapter-card" onclick="openChapterModal(11)">
+                        <div class="chapter-number">Chapter 11</div>
+                        <div class="chapter-title">You Can Get There from Here</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Chapter Modals -->
+    <div id="chapter-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title" id="modal-chapter-num">Chapter 01</div>
+                    <h2 class="modal-chapter-title" id="modal-chapter-title">Humanity Has Entered the Chat</h2>
+                </div>
+                <button class="modal-close" onclick="closeChapterModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <ul class="bullet-list" id="modal-bullets"></ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PDF Modal -->
+    <div id="pdf-modal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal pdf-modal" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <div>
+                    <div class="modal-title">PDF Viewer</div>
+                    <h2 class="modal-chapter-title">Superagency</h2>
+                </div>
+                <button class="modal-close" onclick="closePdfModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="pdf-container"></div>
+                <div class="pdf-controls">
+                    <button onclick="prevPage()" id="prev-btn">&#8592; Prev</button>
+                    <span id="page-info">Page 1 of 229</span>
+                    <button onclick="nextPage()" id="next-btn">Next &#8594;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chapter data with 5 bullet points each
+        const chapters = {
+            1: {
+                title: "Humanity Has Entered the Chat",
+                bullets: [
+                    "ChatGPT's November 2022 launch marked a pivotal moment: with zero marketing, it attracted 100 million users in two months, triggering a tech industry earthquake that put AI at the center of global attention.",
+                    "Unlike previous AI systems embedded invisibly in recommendation engines or fraud detection, ChatGPT gave ordinary people direct, hands-on access to interact with AI on their own terms.",
+                    "The book introduces three camps: Gloomers (AI pessimists favoring regulation), Zoomers (AI accelerationists wanting unrestricted development), and Bloomers (optimists who believe in proactive, inclusive AI development).",
+                    "LLMs like GPT-4 process language through neural networks with hundreds of billions of parameters, learning patterns from vast text datasets - but they don't 'understand' in the human sense and can hallucinate.",
+                    "The concept of 'superagency' emerges: AI as the cognitive equivalent of steam power - a tool to exponentially amplify human intelligence and agency, not replace it."
+                ]
+            },
+            2: {
+                title: "Big Knowledge",
+                bullets: [
+                    "Orwell's 1984 has shaped fears about technology and surveillance for 75+ years, but the reality of 'Big Knowledge' has proven more empowering than oppressive for most users.",
+                    "The 1960s saw similar fears about mainframe computers as 'giant memory machines' that could recall every citizen's actions - yet technology evolved to democratize rather than control.",
+                    "OpenAI's 'iterative deployment' approach releases AI incrementally to the public, gathering feedback and building trust over time rather than developing in secret.",
+                    "Trust in AI develops through exposure and use: consistency over time leads people to form their own judgments about reliability, value, and appropriate dependency.",
+                    "The chapter distinguishes between surveillance (monitoring without consent) and the voluntary exchange of data for services that users find genuinely valuable."
+                ]
+            },
+            3: {
+                title: "What Could Possibly Go Right?",
+                bullets: [
+                    "Hoffman coins 'problemism' as the inverse of solutionism: the reflexive view that technology is suspect, antihuman, and inherently harmful - a stance that blocks positive outcomes.",
+                    "Mental health is a prime example: AI could dramatically expand access to care, analyze millions of therapy interactions, and personalize treatment in ways impossible for human systems alone.",
+                    "Every precautionary delay that prevents potential harm also prevents potential benefits - from AI science tutors to health advisors to legal assistants that could enfranchise marginalized populations.",
+                    "The 'what could go right' mindset doesn't ignore risks; it steers toward better futures that make worse outcomes harder to achieve, rather than trying to freeze the status quo.",
+                    "Technology typically contributes 30-80% of any effective solution to global challenges like climate change, healthcare, and education - including solutions to AI's own risks."
+                ]
+            },
+            4: {
+                title: "The Triumph of the Private Commons",
+                bullets: [
+                    "Shoshana Zuboff's 'surveillance capitalism' thesis portrays Big Tech as extracting user data like 'poaching elephants for ivory' - but this ignores the genuine value billions of users receive.",
+                    "Six Google products have over 2 billion users each; 1.46 billion people have iPhones - numbers that signal genuine two-way value exchange, not exploitation.",
+                    "The 'private commons' concept: AI companies create shared resources (like GPS or the internet) that generate public good even as they generate private profit.",
+                    "Historical precedent: the steam engine was developed by private enterprise but created exponential social progress, fairer laws, greater mobility, and expanded human possibility.",
+                    "The real question isn't whether Big Tech profits, but whether the total pie grows large enough that broadly distributed benefits outweigh concentrated gains."
+                ]
+            },
+            5: {
+                title: "Testing, Testing 1, 2, &infin;",
+                bullets: [
+                    "Media coverage of AI as an 'arms race' is misleading; the actual development culture is defined by exhaustive, data-driven testing and benchmarking, not reckless speed.",
+                    "AI testing began before AI existed: Turing's 1950 paper proposed evaluating machine intelligence through the imitation game, now known as the Turing Test.",
+                    "Modern AI development uses hundreds of standardized benchmarks like SuperGLUE to measure language understanding, reasoning, factual accuracy, and toxicity across multiple dimensions.",
+                    "Competition in AI is actually a form of regulation: public benchmarks force transparency, enable comparison, and create accountability that closed development would lack.",
+                    "The space race analogy is more accurate than arms race: competitive but measured progression from Sputnik to Apollo, with each milestone publicly demonstrated and verified."
+                ]
+            },
+            6: {
+                title: "Innovation Is Safety",
+                bullets: [
+                    "The precautionary principle ('guilty until proven innocent') sounds prudent but can delay life-saving innovations and cede AI leadership to nations with different values.",
+                    "Innovation itself is regulatory: each new product iteration is a 'law' that the public ratifies through adoption - like electric starters replacing dangerous hand-cranked engines.",
+                    "Internet-era feedback loops make innovation's regulatory power stronger than ever: millions of users provide real-time testing that no regulator could replicate.",
+                    "Maintaining America's AI development lead means infusing these technologies with democratic values before authoritarian alternatives become dominant.",
+                    "The 'permissionless innovation' vs 'precautionary principle' debate misses that rapid, adaptive development with public participation is often safer than slow, closed development."
+                ]
+            },
+            7: {
+                title: "Informational GPS",
+                bullets: [
+                    "GPS evolved from a military project to a $1.4 trillion public good - a model for how government can enable private-sector innovation that creates broad social benefit.",
+                    "LLMs function as 'informational GPS': tools that help users navigate complex informational environments with constantly updated situational awareness.",
+                    "GPS demonstrates pro-technology, pro-innovation policy: Clinton's 2000 decision to give civilians full GPS access sparked exponential growth in applications and value.",
+                    "Like GPS enabling precision farming, emergency response, and logistics optimization, AI will create value in ways we can't yet fully anticipate.",
+                    "The key parallel: both GPS and AI enhance individual agency by providing context-aware guidance that helps people make better-informed decisions."
+                ]
+            },
+            8: {
+                title: "Law Is Code",
+                bullets: [
+                    "Lawrence Lessig's 1999 insight that 'code is law' is even more relevant now: software architecture increasingly determines what's possible, permitted, or prohibited in daily life.",
+                    "The DADSS (Driver Alcohol Detection System) example: by 2027, cars may refuse to start if sensors detect intoxication - technology enforcing law automatically.",
+                    "AI-powered systems will make countless micro-decisions affecting individuals: routing, pricing, access, recommendations - all operating as de facto regulations.",
+                    "The internet evolved from ungovernable cyberspace to a highly regulated environment of cookies, user IDs, and authentication - commerce demanded identity.",
+                    "As AI embeds into infrastructure, vehicles, and devices, questions of consent, override rights, and algorithmic accountability become urgent civic issues."
+                ]
+            },
+            9: {
+                title: "Networked Autonomy",
+                bullets: [
+                    "Self-driving cars illustrate the tension: they may constrain some freedoms (no speeding, limited route choice) while enabling others (mobility for non-drivers, productive commute time).",
+                    "American automobility scaled through network effects plus regulation: licenses, road standards, traffic signals all made driving safer and more accessible, not less free.",
+                    "The Model T reached one car per 3.7 Americans by 1950 - scale created consensus that cars' benefits exceeded their costs and cultural disruptions.",
+                    "Freedom is relational and contextual: technologies enable new liberties while requiring new constraints, and the balance shifts with each innovation.",
+                    "The Donner Party to modern road trips: 178 years of regulation transformed a deadly 6-month journey into a 2-day drive with GPS, rest stops, and safety nets."
+                ]
+            },
+            10: {
+                title: "The United States of A(I)merica",
+                bullets: [
+                    "The Luddites vs. Donner Party contrast: one group resisted technological change, the other embraced exploration and risk - America was built by the latter mindset.",
+                    "A counterfactual 'Jobs, Safety, and Human Dignity Act' imagines if Britain had successfully frozen technological progress in 1820 - a cautionary tale of precautionary paralysis.",
+                    "The Luddites weren't anti-technology per se; they opposed the factory system's exploitation - but their methods delayed benefits without addressing root causes.",
+                    "American identity is defined by continuous adaptation, exploration, and self-improvement - values aligned with iterative AI development rather than prohibition.",
+                    "The chapter argues that precautionary approaches may feel protective but often entrench existing inequities while ceding future-shaping power to those willing to innovate."
+                ]
+            },
+            11: {
+                title: "You Can Get There from Here",
+                bullets: [
+                    "Four core principles: (1) design for human agency, (2) shared data empowers rather than controls, (3) innovation and safety are synergistic, (4) collective AI use creates compounding superagency.",
+                    "The current moment is uniquely uncertain - 'everyone knows less about the world to come than we've known in decades' - requiring exploration over rigid planning.",
+                    "Technology is not a threat to humanity but a 'time-tested key to human flourishing' - without it, we'd have shorter lives, smaller numbers, and agency no greater than other animals.",
+                    "AI should be viewed as part of an existential risk portfolio: unlike pandemics or asteroids, AI offers potential solutions to multiple threats while creating new ones.",
+                    "The techno-humanist compass: steer toward better futures through iterative deployment, broad participation, and democratic values - making worse outcomes harder to achieve."
+                ]
+            }
+        };
+
+        // PDF handling
+        let pdfDoc = null;
+        let pageNum = 1;
+        let pageRendering = false;
+        let pageNumPending = null;
+        const scale = 1.5;
+
+        function openChapterModal(num) {
+            const chapter = chapters[num];
+            document.getElementById('modal-chapter-num').textContent = `Chapter ${String(num).padStart(2, '0')}`;
+            document.getElementById('modal-chapter-title').textContent = chapter.title;
+
+            const bulletList = document.getElementById('modal-bullets');
+            bulletList.innerHTML = chapter.bullets.map(b => `<li>${b}</li>`).join('');
+
+            document.getElementById('chapter-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeChapterModal() {
+            document.getElementById('chapter-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function openPdfModal() {
+            document.getElementById('pdf-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+
+            // Load PDF if not already loaded
+            if (!pdfDoc) {
+                loadPdf();
+            }
+        }
+
+        function closePdfModal() {
+            document.getElementById('pdf-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function closeModal(event) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeChapterModal();
+                closePdfModal();
+            }
+        }
+
+        // PDF.js functions
+        async function loadPdf() {
+            try {
+                pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+                // Try to load the PDF
+                pdfDoc = await pdfjsLib.getDocument('Superagency PDF.pdf').promise;
+                document.getElementById('page-info').textContent = `Page 1 of ${pdfDoc.numPages}`;
+                renderPage(pageNum);
+            } catch (error) {
+                document.getElementById('pdf-container').innerHTML = `
+                    <div style="text-align: center; padding: 3rem; color: var(--text-secondary);">
+                        <p style="font-size: 1.1rem; margin-bottom: 1rem;">PDF file not found</p>
+                        <p style="font-size: 0.9rem; color: var(--text-muted);">
+                            Place "Superagency PDF.pdf" in the same directory as this HTML file to enable the PDF viewer.
+                        </p>
+                    </div>
+                `;
+            }
+        }
+
+        function renderPage(num) {
+            pageRendering = true;
+
+            pdfDoc.getPage(num).then(function(page) {
+                const viewport = page.getViewport({ scale: scale });
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.height = viewport.height;
+                canvas.width = viewport.width;
+
+                const renderContext = {
+                    canvasContext: ctx,
+                    viewport: viewport
+                };
+
+                const container = document.getElementById('pdf-container');
+                if (num === 1) container.innerHTML = '';
+                container.appendChild(canvas);
+
+                page.render(renderContext).promise.then(function() {
+                    pageRendering = false;
+                    if (pageNumPending !== null) {
+                        renderPage(pageNumPending);
+                        pageNumPending = null;
+                    }
+                });
+            });
+
+            document.getElementById('page-info').textContent = `Page ${num} of ${pdfDoc.numPages}`;
+            document.getElementById('prev-btn').disabled = num <= 1;
+            document.getElementById('next-btn').disabled = num >= pdfDoc.numPages;
+        }
+
+        function queueRenderPage(num) {
+            if (pageRendering) {
+                pageNumPending = num;
+            } else {
+                renderPage(num);
+            }
+        }
+
+        function prevPage() {
+            if (pageNum <= 1) return;
+            pageNum--;
+            document.getElementById('pdf-container').innerHTML = '';
+            queueRenderPage(pageNum);
+        }
+
+        function nextPage() {
+            if (pageNum >= pdfDoc.numPages) return;
+            pageNum++;
+            document.getElementById('pdf-container').innerHTML = '';
+            queueRenderPage(pageNum);
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeChapterModal();
+                closePdfModal();
+            }
+        });
+    </script>
+</body>
+</html>
